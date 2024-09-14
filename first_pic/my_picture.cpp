@@ -171,16 +171,16 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 	get_ampl_spec(fourea, max_A);
 	double en = energy(ampl_spec);
 
-	/*for (int i = 0; i < h; i++)
+	for (int i = 0; i < h; i++)
 	{
 		for (int j = 0; j < w; j++)
 		{
 			if (ampl_spec[i][j] < gamma * max_A)
 				fourea[i][j] = base(0, 0);
 		}
-	}*/
+	}
 
-	std::vector<std::vector<base>> examp;
+	/*std::vector<std::vector<base>> examp;
 	int iter = 1;
 	for (int i = 0; i < h; i++)
 	{
@@ -195,7 +195,7 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 				}
 			} while (energy(get_ampl_spec(examp, max_A)) < energy(get_ampl_spec(fourea, max_A)));
 		}
-	}
+	}*/
 
 	get_ampl_spec(fourea, max_A);
 }
@@ -256,8 +256,21 @@ void my_image::Process()
 	vector<vector<base>> b = fourea_image();
 	filter(b);
 
-	for (int i = 0; i < b.size(); i++)
+	/*for (int i = 0; i < b.size(); i++)
+		fft(b[i], false);*/
+
+	vector<base> vec_help;
+	for (int j = 0; j < w; j++)
+	{
+		vec_help = get_column(b, j);
+		fft(vec_help, false);
+		set_column(b, vec_help, j);
+	}
+
+	for (int i = 0; i < h; i++)
+	{
 		fft(b[i], false);
+	}
 
 	for (int i = 0; i < b.size(); i++)
 	{
