@@ -1,7 +1,7 @@
 #include "pch.h"
 #define _USE_MATH_DEFINES
-#define P2(x) (x) * (x)
-#define EXP_G(x, x0, s) exp(-P2(x - x0) / (s * P2(x)))
+#define P2(x) ((x)*(x))
+#define EXP_G(x, x0, s) exp(-(double)P2(x - x0) / (double)P2(s))
 #define AMPL(x) sqrt(x.real() * x.real() + x.imag() * x.imag())
 #include "my_picture.h"
 #include <math.h>
@@ -26,6 +26,7 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 	}
 
 	image0 = vector<vector<double>>(h, vector<double>(w));
+	double e1, e2;
 
 	for (int i = 0; i < h; i++)
 	{
@@ -33,7 +34,11 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 		{
 			image0[i][j] = 0.;
 			for (int k = 0; k < _gauss.size(); k++)
-				image0[i][j] += _gauss[k].A * EXP_G(j, _gauss[k].p0.first, _gauss[k].sigma) * EXP_G(i, _gauss[k].p0.second, _gauss[k].sigma);
+			{
+				e1 = EXP_G(j, _gauss[k].p0.first, _gauss[k].sigma);
+				e2 = EXP_G(i, _gauss[k].p0.second, _gauss[k].sigma);
+				image0[i][j] += _gauss[k].A * e1 * e2;
+			}
 		}
 	}
 }
@@ -134,7 +139,7 @@ std::vector<std::vector<base>> my_image::fourea_image()
 		fft(vec_help, true);
 		set_column(fourea, vec_help, j);
 	}
-	fourea[0][0] = base(0, 0);
+	//fourea[0][0] = base(0, 0);
 
 	return fourea;
 }
@@ -162,16 +167,37 @@ void my_image::set_column(std::vector<std::vector<base>>& matr, std::vector<base
 void my_image::filter(std::vector<std::vector<base>>& fourea)
 {
 	double max_A = 0;
-	vector<vector<double>> ampl_spec = get_ampl_spec(fourea, max_A);
-	
-	for (int i = 0; i < h; i++)
+	//vector<vector<double>> ampl_spec = get_ampl_spec(fourea, max_A);
+	get_ampl_spec(fourea, max_A);
+	double en = energy(ampl_spec);
+
+	/*for (int i = 0; i < h; i++)
 	{
 		for (int j = 0; j < w; j++)
 		{
 			if (ampl_spec[i][j] < gamma * max_A)
 				fourea[i][j] = base(0, 0);
 		}
+	}*/
+
+	std::vector<std::vector<base>> examp;
+	int iter = 1;
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			do
+			{
+				examp = std::vector<std::vector<base>>(h, vector<base>(w, base(0, 0)));
+				for (int k = 0; k < iter; k++)
+				{
+					
+				}
+			} while (energy(get_ampl_spec(examp, max_A)) < energy(get_ampl_spec(fourea, max_A)));
+		}
 	}
+
+	get_ampl_spec(fourea, max_A);
 }
 
 double my_image::find_error()
@@ -192,7 +218,8 @@ double my_image::find_error()
 
 std::vector<std::vector<double>> my_image::get_ampl_spec(std::vector<std::vector<base>> matr, double& maximum)
 {
-	vector<vector<double>> ampl_spec;
+	//vector<vector<double>> ampl_spec;
+	ampl_spec.clear();
 	for (int i = 0; i < h; i++)
 	{
 		ampl_spec.push_back(vector<double>());
@@ -221,4 +248,66 @@ void my_image::clear()
 	image_shum.clear();
 	image_res.clear();
 	image0.clear();
+}
+
+void my_image::Process()
+{
+	generate_pic_with_shum();
+	vector<vector<base>> b = fourea_image();
+	filter(b);
+
+	for (int i = 0; i < b.size(); i++)
+		fft(b[i], false);
+
+	for (int i = 0; i < b.size(); i++)
+	{
+		image_res.push_back(vector<double>());
+		for (int j = 0; j < b[0].size(); j++)
+			image_res[i].push_back(b[i][j].real());
+	}
+}
+
+void my_image::Norma255(vector<vector<double>>& m)
+{
+	double max_m = m[0][0];
+	for (int i = 0; i < m.size(); i++)
+	{
+		for (int j = 0; j < m[0].size(); j++)
+		{
+			if (max_m < m[i][j]) max_m = m[i][j];
+		}
+	}
+
+	for (int i = 0; i < m.size(); i++)
+	{
+		for (int j = 0; j < m[0].size(); j++)
+		{
+			m[i][j] = m[i][j] * 255 / max_m;
+			//m[i][j] = 10 * log10(m[i][j] / max_m);
+		}
+	}
+}
+
+vector<vector<double>> my_image::GetImageShum()
+{
+	Norma255(image_shum);
+	return image_shum;
+}
+
+vector<vector<double>> my_image::GetImageRes()
+{
+	Norma255(image_res);
+	return image_res;
+}
+
+vector<vector<double>> my_image::GetAmplSpectr()
+{
+	Norma255(ampl_spec);
+	return ampl_spec;
+}
+
+vector<vector<double>> my_image::GetImageStart()
+{
+	Norma255(image0);
+	return image0;
 }

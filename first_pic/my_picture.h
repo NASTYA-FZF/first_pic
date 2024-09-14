@@ -19,7 +19,7 @@ struct gauss
 
 class my_image
 {
-	vector<vector<double>> image0, image_shum, image_res;
+	vector<vector<double>> image0, image_shum, image_res, ampl_spec;
 	double alpha, gamma;
 	int w, h;
 
@@ -39,4 +39,12 @@ public:
 	void set_alpha(double a);
 	void set_gamma(double g);
 	void clear();
+	void Process();
+
+	void Norma255(vector<vector<double>>& m);
+
+	vector<vector<double>> GetImageStart();
+	vector<vector<double>> GetImageShum();
+	vector<vector<double>> GetImageRes();
+	vector<vector<double>> GetAmplSpectr();
 };

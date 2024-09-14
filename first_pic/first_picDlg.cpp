@@ -38,6 +38,8 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT5, error);
 	DDX_Control(pDX, IDC_LIST2, list_gauss);
 	DDX_Control(pDX, IDC_PIC, my_picture);
+	DDX_Control(pDX, IDC_SPECTR, pic_spectr);
+	DDX_Control(pDX, IDC_PIC_RES, pic_res);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -48,6 +50,7 @@ BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_DELETE_KUP, &CfirstpicDlg::OnBnClickedDeleteKup)
 	ON_BN_CLICKED(IDC_DELETE_ALL, &CfirstpicDlg::OnBnClickedDeleteAll)
 	ON_BN_CLICKED(IDC_BUT_DEFAULT, &CfirstpicDlg::OnBnClickedButDefault)
+	ON_BN_CLICKED(IDOK, &CfirstpicDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -178,13 +181,13 @@ void CfirstpicDlg::OnBnClickedDeleteAll()
 
 void CfirstpicDlg::default_gauss()
 {
-	vec_gauss.push_back(gauss(1, (int)(0.5 * width_pic), (int)(0.5 * heaght_pic), 0.25));
+	vec_gauss.push_back(gauss(1, (int)(0.5 * width_pic), (int)(0.5 * heaght_pic), 25));
 	add_gauss_in_list(vec_gauss.back());
 
-	vec_gauss.push_back(gauss(1, (int)(0.2 * width_pic), (int)(0.2 * heaght_pic), 0.15));
+	vec_gauss.push_back(gauss(1, (int)(0.2 * width_pic), (int)(0.2 * heaght_pic), 15));
 	add_gauss_in_list(vec_gauss.back());
 
-	vec_gauss.push_back(gauss(1, (int)(0.7 * width_pic), (int)(0.7 * heaght_pic), 0.35));
+	vec_gauss.push_back(gauss(1, (int)(0.7 * width_pic), (int)(0.7 * heaght_pic), 35));
 	add_gauss_in_list(vec_gauss.back());
 }
 
@@ -193,4 +196,21 @@ void CfirstpicDlg::OnBnClickedButDefault()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	default_gauss();
+}
+
+
+void CfirstpicDlg::OnBnClickedOk()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	//my_picture.LoadImage_(L"real_dog.jpg");
+	//pic_spectr.LoadImage_(L"real_dog.jpg");
+	UpdateData();
+	image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
+	my_picture.matr = image_all.GetImageStart();
+
+	image_all.Process();
+
+	pic_spectr.matr = image_all.GetAmplSpectr();
+	pic_res.matr = image_all.GetImageRes();
+	Invalidate(FALSE);
 }

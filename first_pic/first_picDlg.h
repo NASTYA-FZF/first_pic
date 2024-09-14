@@ -49,4 +49,8 @@ public:
 	void default_gauss();
 	afx_msg void OnBnClickedButDefault();
 	Drawer my_picture;
+	Drawer pic_spectr;
+	afx_msg void OnBnClickedOk();
+	my_image image_all;
+	Drawer pic_res;
 };
