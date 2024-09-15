@@ -213,4 +213,6 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_spectr.matr = image_all.GetAmplSpectr();
 	pic_res.matr = image_all.GetImageRes();
 	Invalidate(FALSE);
+	error = image_all.find_error();
+	UpdateData(FALSE);
 }

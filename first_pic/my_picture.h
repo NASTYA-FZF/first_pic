@@ -22,6 +22,7 @@ class my_image
 	vector<vector<double>> image0, image_shum, image_res, ampl_spec;
 	double alpha, gamma;
 	int w, h;
+	base need;
 
 public:
 	my_image() {}
@@ -40,6 +41,8 @@ public:
 	void set_gamma(double g);
 	void clear();
 	void Process();
+	void Simmetria(vector<vector<base>>& fourea);
+	void NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num);
 
 	void Norma255(vector<vector<double>>& m);
 

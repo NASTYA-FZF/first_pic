@@ -139,7 +139,8 @@ std::vector<std::vector<base>> my_image::fourea_image()
 		fft(vec_help, true);
 		set_column(fourea, vec_help, j);
 	}
-	//fourea[0][0] = base(0, 0);
+	need = fourea[0][0];
+	fourea[0][0] = base(0, 0);
 
 	return fourea;
 }
@@ -166,38 +167,25 @@ void my_image::set_column(std::vector<std::vector<base>>& matr, std::vector<base
 
 void my_image::filter(std::vector<std::vector<base>>& fourea)
 {
-	double max_A = 0;
-	//vector<vector<double>> ampl_spec = get_ampl_spec(fourea, max_A);
-	get_ampl_spec(fourea, max_A);
-	double en = energy(ampl_spec);
+	double max_A = 0, mmm = 0;
+	Simmetria(fourea);
+	ampl_spec = get_ampl_spec(fourea, max_A);
+	double en = energy(ampl_spec), en1;
 
-	for (int i = 0; i < h; i++)
+	vector<vector<base>> new_vec(fourea.size(), vector<base>(fourea[0].size(), base(0, 0)));
+	int num = 0; bool flag;
+	do
 	{
-		for (int j = 0; j < w; j++)
-		{
-			if (ampl_spec[i][j] < gamma * max_A)
-				fourea[i][j] = base(0, 0);
-		}
-	}
+		num++;
+		if (2 * num > w || 2 * num > h) break;
+		NewSpectr(new_vec, fourea, num);
+		en1 = energy(get_ampl_spec(new_vec, mmm));
+	} while (en1 < gamma * en);
 
-	/*std::vector<std::vector<base>> examp;
-	int iter = 1;
-	for (int i = 0; i < h; i++)
-	{
-		for (int j = 0; j < w; j++)
-		{
-			do
-			{
-				examp = std::vector<std::vector<base>>(h, vector<base>(w, base(0, 0)));
-				for (int k = 0; k < iter; k++)
-				{
-					
-				}
-			} while (energy(get_ampl_spec(examp, max_A)) < energy(get_ampl_spec(fourea, max_A)));
-		}
-	}*/
+	fourea = new_vec;
 
-	get_ampl_spec(fourea, max_A);
+	ampl_spec = get_ampl_spec(fourea, max_A);
+	Simmetria(fourea);
 }
 
 double my_image::find_error()
@@ -218,19 +206,18 @@ double my_image::find_error()
 
 std::vector<std::vector<double>> my_image::get_ampl_spec(std::vector<std::vector<base>> matr, double& maximum)
 {
-	//vector<vector<double>> ampl_spec;
-	ampl_spec.clear();
+	vector<vector<double>> ampl_spectr;
 	for (int i = 0; i < h; i++)
 	{
-		ampl_spec.push_back(vector<double>());
+		ampl_spectr.push_back(vector<double>());
 		for (int j = 0; j < w; j++)
 		{
-			ampl_spec[i].push_back(AMPL(matr[i][j]));
-			if (maximum < ampl_spec[i][j])
-				maximum = ampl_spec[i][j];
+			ampl_spectr[i].push_back(AMPL(matr[i][j]));
+			if (maximum < ampl_spectr[i][j])
+				maximum = ampl_spectr[i][j];
 		}
 	}
-	return ampl_spec;
+	return ampl_spectr;
 }
 
 void my_image::set_alpha(double a)
@@ -256,8 +243,12 @@ void my_image::Process()
 	vector<vector<base>> b = fourea_image();
 	filter(b);
 
-	/*for (int i = 0; i < b.size(); i++)
-		fft(b[i], false);*/
+	b[0][0] = need;
+
+	for (int i = 0; i < h; i++)
+	{
+		fft(b[i], false);
+	}
 
 	vector<base> vec_help;
 	for (int j = 0; j < w; j++)
@@ -267,16 +258,42 @@ void my_image::Process()
 		set_column(b, vec_help, j);
 	}
 
-	for (int i = 0; i < h; i++)
-	{
-		fft(b[i], false);
-	}
-
 	for (int i = 0; i < b.size(); i++)
 	{
 		image_res.push_back(vector<double>());
 		for (int j = 0; j < b[0].size(); j++)
 			image_res[i].push_back(b[i][j].real());
+			//image_res[i].push_back(AMPL(b[i][j]));
+	}
+}
+
+void my_image::Simmetria(vector<vector<base>>& fourea)
+{
+	int height = fourea.size() / 2, width = fourea[0].size() / 2;
+	base my_pixel;
+
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			my_pixel = fourea[i][j];
+			fourea[i][j] = fourea[i + height][j + width];
+			fourea[i + height][j + width] = my_pixel;
+
+			my_pixel = fourea[i + height][j];
+			fourea[i + height][j] = fourea[i][j + width];
+			fourea[i][j + width] = my_pixel;
+		}
+	}
+}
+
+void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num)
+{
+	int height = fourea.size() / 2, width = fourea[0].size() / 2;
+	for (int i = 0; i < 2 * num; i++)
+	{
+		for (int j = 0; j < 2 * num; j++)
+			new_vec[height - 1 + num - i][width - 1 + num - j] = fourea[height - 1 + num - i][width - 1 + num - j];
 	}
 }
 
@@ -309,6 +326,13 @@ vector<vector<double>> my_image::GetImageShum()
 
 vector<vector<double>> my_image::GetImageRes()
 {
+	//for (int i = 0; i < image_res.size(); i++)
+	//{
+	//	for (int j = 0; j < image_res[0].size(); j++)
+	//	{
+
+	//	}
+	//}
 	Norma255(image_res);
 	return image_res;
 }
