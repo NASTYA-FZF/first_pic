@@ -326,13 +326,6 @@ vector<vector<double>> my_image::GetImageShum()
 
 vector<vector<double>> my_image::GetImageRes()
 {
-	//for (int i = 0; i < image_res.size(); i++)
-	//{
-	//	for (int j = 0; j < image_res[0].size(); j++)
-	//	{
-
-	//	}
-	//}
 	Norma255(image_res);
 	return image_res;
 }
