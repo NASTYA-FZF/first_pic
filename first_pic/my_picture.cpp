@@ -43,6 +43,15 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 	}
 }
 
+my_image::my_image(vector<vector<double>> matr, double a, double g)
+{
+	image0 = matr;
+	h = image0.size();
+	w = image0[0].size();
+	alpha = a;
+	gamma = g;
+}
+
 std::vector<std::vector<double>> my_image::generate_shum()
 {
 	vector<vector<double>> n0;
@@ -123,26 +132,19 @@ void my_image::fft(vector<base>& a, bool invert)
 	}
 }
 
-std::vector<std::vector<base>> my_image::fourea_image()
+void my_image::fourea_image(std::vector<std::vector<base>>& fourea, bool invert)
 {
-	vector<vector<base>> fourea(h, vector<base>(w));
 	for (int i = 0; i < h; i++)
-	{
-		fourea[i] = vector<base>(image_shum[i].begin(), image_shum[i].end());
-		fft(fourea[i], true);
-	}
+		fft(fourea[i], invert);
 
 	vector<base> vec_help;
 	for (int j = 0; j < w; j++)
 	{
 		vec_help = get_column(fourea, j);
-		fft(vec_help, true);
+		fft(vec_help, invert);
 		set_column(fourea, vec_help, j);
 	}
 	need = fourea[0][0];
-	fourea[0][0] = base(0, 0);
-
-	return fourea;
 }
 
 std::vector<base> my_image::get_column(std::vector<std::vector<base>> matr, int num)
@@ -240,30 +242,31 @@ void my_image::clear()
 void my_image::Process()
 {
 	generate_pic_with_shum();
-	vector<vector<base>> b = fourea_image();
-	filter(b);
-
-	b[0][0] = need;
-
+	vector<vector<base>> b(h, vector<base>(w));
 	for (int i = 0; i < h; i++)
-	{
-		fft(b[i], false);
-	}
-
-	vector<base> vec_help;
-	for (int j = 0; j < w; j++)
-	{
-		vec_help = get_column(b, j);
-		fft(vec_help, false);
-		set_column(b, vec_help, j);
-	}
-
+		b[i] = vector<base>(image_shum[i].begin(), image_shum[i].end());
+	fourea_image(b, true);
+	b[0][0] = base(0, 0);
+	filter(b);
+	b[0][0] = need;
+	fourea_image(b, false);
+	
+	double maxres = 0, minres = 0, max0 = 0, min0 = 0;
 	for (int i = 0; i < b.size(); i++)
 	{
 		image_res.push_back(vector<double>());
 		for (int j = 0; j < b[0].size(); j++)
+		{
 			image_res[i].push_back(b[i][j].real());
-			//image_res[i].push_back(AMPL(b[i][j]));
+			if (maxres < image_res[i][j])
+				maxres = image_res[i][j];
+			if (minres > image_res[i][j])
+				minres = image_res[i][j];
+			if (max0 < image0[i][j])
+				max0 = image0[i][j];
+			if (min0 > image0[i][j])
+				min0 = image0[i][j];
+		}
 	}
 }
 
@@ -297,47 +300,47 @@ void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fou
 	}
 }
 
-void my_image::Norma255(vector<vector<double>>& m)
-{
-	double max_m = m[0][0];
-	for (int i = 0; i < m.size(); i++)
-	{
-		for (int j = 0; j < m[0].size(); j++)
-		{
-			if (max_m < m[i][j]) max_m = m[i][j];
-		}
-	}
-
-	for (int i = 0; i < m.size(); i++)
-	{
-		for (int j = 0; j < m[0].size(); j++)
-		{
-			m[i][j] = m[i][j] * 255 / max_m;
-			//m[i][j] = 10 * log10(m[i][j] / max_m);
-		}
-	}
-}
+//void my_image::Norma255(vector<vector<double>>& m)
+//{
+//	double max_m = m[0][0];
+//	for (int i = 0; i < m.size(); i++)
+//	{
+//		for (int j = 0; j < m[0].size(); j++)
+//		{
+//			if (max_m < m[i][j]) max_m = m[i][j];
+//		}
+//	}
+//
+//	for (int i = 0; i < m.size(); i++)
+//	{
+//		for (int j = 0; j < m[0].size(); j++)
+//		{
+//			m[i][j] = m[i][j] * 255 / max_m;
+//			//m[i][j] = 10 * log10(m[i][j] / max_m);
+//		}
+//	}
+//}
 
 vector<vector<double>> my_image::GetImageShum()
 {
-	Norma255(image_shum);
+	//Norma255(image_shum);
 	return image_shum;
 }
 
 vector<vector<double>> my_image::GetImageRes()
 {
-	Norma255(image_res);
+	//Norma255(image_res);
 	return image_res;
 }
 
 vector<vector<double>> my_image::GetAmplSpectr()
 {
-	Norma255(ampl_spec);
+	//Norma255(ampl_spec);
 	return ampl_spec;
 }
 
 vector<vector<double>> my_image::GetImageStart()
 {
-	Norma255(image0);
+	//Norma255(image0);
 	return image0;
 }

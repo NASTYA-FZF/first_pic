@@ -19,6 +19,7 @@ Drawer::Drawer()
 	s = GdiplusStartup(&token, &input, NULL);
 	if (s != Ok) MessageBox(L"s != Ok", L"Error!");
 	first_start = true;
+	dec_log = true;
 }
 
 Drawer::~Drawer()
@@ -29,6 +30,7 @@ Drawer::~Drawer()
 
 BEGIN_MESSAGE_MAP(Drawer, CStatic)
 //	ON_WM_DRAWITEM()
+ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -48,17 +50,13 @@ END_MESSAGE_MAP()
 void Drawer::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	// TODO:  Добавьте исходный код для отображения указанного элемента
-	if (first_start)
+	if (matr.empty())
 	{
-		first_start = false;
+		//MessageBox(L"Нечего выводить! Матрица пуста!", L"Ошибка");
 		return;
 	}
 
-	if (matr.empty())
-	{
-		MessageBox(L"Нечего выводить! Матрица пуста!", L"Ошибка");
-		return;
-	}
+	Norma();
 
 	Graphics wnd(lpDrawItemStruct->hDC);
 	Bitmap buffer(lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom, &wnd);
@@ -135,4 +133,62 @@ void Drawer::LoadImage_(const wchar_t* path_file)
 	Bitmap pic(path_file);
 	picture = &pic;
 	ConvertWB();
+}
+
+void Drawer::Norma()
+{
+	int h = matr.size();
+	int w = matr[0].size();
+	double min = 0, max = 0;
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			if (max < matr[i][j])
+				max = matr[i][j];
+			if (min > matr[i][j])
+				min = matr[i][j];
+		}
+	}
+
+	if (dec_log)
+	{
+		normirovka(min, max, matr);
+	}
+	else
+	{
+		double lmin = 0, lmax = 0;
+		for (int i = 0; i < h; i++)
+		{
+			for (int j = 0; j < w; j++)
+			{
+				matr[i][j] += min;
+				if (matr[i][j] != 0)
+					matr[i][j] = -log10(matr[i][j] / max);
+				if (lmin > matr[i][j])
+					lmin = matr[i][j];
+				if (lmax < matr[i][j])
+					lmax = matr[i][j];
+			}
+		}
+		normirovka(lmin, lmax, matr);
+	}
+}
+
+void Drawer::normirovka(double min, double max, vector<vector<double>>& mat)
+{
+	for (int i = 0; i < mat.size(); i++)
+	{
+		for (int j = 0; j < mat[0].size(); j++)
+			mat[i][j] = (mat[i][j] - min) * 255 / (max - min);
+	}
+}
+
+
+void Drawer::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: добавьте свой код обработчика сообщений или вызов стандартного
+	dec_log = !dec_log;
+	Invalidate(FALSE);
+	CStatic::OnLButtonDown(nFlags, point);
 }

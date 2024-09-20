@@ -19,10 +19,10 @@
 
 CfirstpicDlg::CfirstpicDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FIRST_PIC_DIALOG, pParent)
-	, width_pic(256)
-	, heaght_pic(256)
-	, alpha(0.8)
-	, gamma(0.4)
+	, width_pic(128)
+	, heaght_pic(128)
+	, alpha(0.01)
+	, gamma(0.98)
 	, error(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -40,6 +40,7 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PIC, my_picture);
 	DDX_Control(pDX, IDC_SPECTR, pic_spectr);
 	DDX_Control(pDX, IDC_PIC_RES, pic_res);
+	DDX_Control(pDX, IDC_PIC_SHUM, pic_shum);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -51,6 +52,9 @@ BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_DELETE_ALL, &CfirstpicDlg::OnBnClickedDeleteAll)
 	ON_BN_CLICKED(IDC_BUT_DEFAULT, &CfirstpicDlg::OnBnClickedButDefault)
 	ON_BN_CLICKED(IDOK, &CfirstpicDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_RIMAGE, &CfirstpicDlg::OnBnClickedRimage)
+	ON_BN_CLICKED(IDC_RGAUSS, &CfirstpicDlg::OnBnClickedRgauss)
+	ON_BN_CLICKED(IDC_BLOADIMAGE, &CfirstpicDlg::OnBnClickedBloadimage)
 END_MESSAGE_MAP()
 
 
@@ -66,6 +70,7 @@ BOOL CfirstpicDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
 	default_gauss();
+	image_start = false;
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -187,8 +192,8 @@ void CfirstpicDlg::default_gauss()
 	vec_gauss.push_back(gauss(1, (int)(0.2 * width_pic), (int)(0.2 * heaght_pic), 15));
 	add_gauss_in_list(vec_gauss.back());
 
-	vec_gauss.push_back(gauss(1, (int)(0.7 * width_pic), (int)(0.7 * heaght_pic), 35));
-	add_gauss_in_list(vec_gauss.back());
+	//vec_gauss.push_back(gauss(1, (int)(0.7 * width_pic), (int)(0.7 * heaght_pic), 35));
+	//add_gauss_in_list(vec_gauss.back());
 }
 
 
@@ -205,14 +210,52 @@ void CfirstpicDlg::OnBnClickedOk()
 	//my_picture.LoadImage_(L"real_dog.jpg");
 	//pic_spectr.LoadImage_(L"real_dog.jpg");
 	UpdateData();
-	image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
-	my_picture.matr = image_all.GetImageStart();
+	if (!image_start)
+	{
+		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
+		my_picture.matr = image_all.GetImageStart();
+	}
+	else
+	{
+		if (my_picture.matr.empty())
+		{
+			MessageBox(L"Нет картинки!", L"Ошибка!");
+			return;
+		}
+		image_all = my_image(my_picture.matr, alpha, gamma);
+	}
 
 	image_all.Process();
 
-	//pic_spectr.matr = image_all.GetAmplSpectr();
+	pic_shum.matr = image_all.GetImageShum();
+	pic_spectr.matr = image_all.GetAmplSpectr();
 	pic_res.matr = image_all.GetImageRes();
 	Invalidate(FALSE);
 	error = image_all.find_error();
 	UpdateData(FALSE);
+}
+
+
+void CfirstpicDlg::OnBnClickedRimage()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	image_start = true;
+}
+
+
+void CfirstpicDlg::OnBnClickedRgauss()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	image_start = false;
+}
+
+
+void CfirstpicDlg::OnBnClickedBloadimage()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	CFileDialog change_image(TRUE);
+	change_image.DoModal();
+	auto path = change_image.GetPathName();
+	my_picture.LoadImage_(path);
+	Invalidate(FALSE);
 }

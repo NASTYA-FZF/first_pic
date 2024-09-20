@@ -37,6 +37,7 @@ public:
 	double alpha;
 	double gamma;
 	double error;
+	bool image_start;
 	CListBox list_gauss;
 	void add_gauss_in_list(gauss for_add, int row);
 	afx_msg void OnBnClickedAddKup();
@@ -53,4 +54,8 @@ public:
 	afx_msg void OnBnClickedOk();
 	my_image image_all;
 	Drawer pic_res;
+	Drawer pic_shum;
+	afx_msg void OnBnClickedRimage();
+	afx_msg void OnBnClickedRgauss();
+	afx_msg void OnBnClickedBloadimage();
 };

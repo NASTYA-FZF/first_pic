@@ -27,11 +27,12 @@ class my_image
 public:
 	my_image() {}
 	my_image(vector<gauss> many_gauss, int _w, int _h, double a, double g);
+	my_image(vector<vector<double>> matr, double a, double g);
 	std::vector<std::vector<double>> generate_shum();
 	void generate_pic_with_shum();
 	double energy(std::vector<std::vector<double>> image);
 	void fft(vector<base>& a, bool invert);
-	std::vector<std::vector<base>> fourea_image();
+	void fourea_image(std::vector<std::vector<base>>& vec, bool invert);
 	std::vector<base> get_column(std::vector<std::vector<base>> matr, int num);
 	void set_column(std::vector<std::vector<base>>& matr, std::vector<base> vec, int num);
 	void filter(std::vector<std::vector<base>>& fourea);
@@ -44,7 +45,7 @@ public:
 	void Simmetria(vector<vector<base>>& fourea);
 	void NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num);
 
-	void Norma255(vector<vector<double>>& m);
+	//void Norma255(vector<vector<double>>& m);
 
 	vector<vector<double>> GetImageStart();
 	vector<vector<double>> GetImageShum();
