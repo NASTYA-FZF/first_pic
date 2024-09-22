@@ -213,7 +213,8 @@ void CfirstpicDlg::OnBnClickedOk()
 	if (!image_start)
 	{
 		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
-		my_picture.matr = image_all.GetImageStart();
+		my_picture.SetMatr(image_all.GetImageStart());
+		//my_picture.matr = image_all.GetImageStart();
 	}
 	else
 	{
@@ -222,14 +223,14 @@ void CfirstpicDlg::OnBnClickedOk()
 			MessageBox(L"Нет картинки!", L"Ошибка!");
 			return;
 		}
-		image_all = my_image(my_picture.matr, alpha, gamma);
+		image_all = my_image(my_picture.GetMatr(), alpha, gamma);
 	}
 
 	image_all.Process();
 
-	pic_shum.matr = image_all.GetImageShum();
-	pic_spectr.matr = image_all.GetAmplSpectr();
-	pic_res.matr = image_all.GetImageRes();
+	pic_shum.SetMatr(image_all.GetImageShum());
+	pic_spectr.SetMatr(image_all.GetAmplSpectr());
+	pic_res.SetMatr(image_all.GetImageRes());
 	Invalidate(FALSE);
 	error = image_all.find_error();
 	UpdateData(FALSE);

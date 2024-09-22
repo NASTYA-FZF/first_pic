@@ -56,20 +56,32 @@ void Drawer::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 		return;
 	}
 
-	Norma();
+	if (dec_log)
+	{
+		Norma(matr);
+		InterpolationMatr(res_image, matr, lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom);
+	}
+	else
+	{
+		Norma(matr_log);
+		InterpolationMatr(res_image, matr_log, lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom);
+	}
+	//Norma(res_image);
+	
 
 	Graphics wnd(lpDrawItemStruct->hDC);
 	Bitmap buffer(lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom, &wnd);
 	Graphics draw_in_buffer(&buffer);
 
-	pWidth = matr[0].size();
-	pHeight = matr.size();
+	pWidth = res_image[0].size();
+	pHeight = res_image.size();
 	Bitmap pic(pWidth, pHeight);
 	picture = &pic;
+
 	CreateImageFromArr();
 	double scaleX = (double)(my_rect.right - my_rect.left) / pWidth;
 	double scaleY = (double)(my_rect.bottom - my_rect.top) / pHeight;
-	draw_in_buffer.ScaleTransform(scaleX, scaleY);
+	//draw_in_buffer.ScaleTransform(scaleX, scaleY);
 
 	draw_in_buffer.DrawImage(picture, Rect(0, 0, picture->GetWidth(), picture->GetHeight()));
 
@@ -118,7 +130,7 @@ void Drawer::CreateImageFromArr()
 	{
 		for (int j = 0; j < pHeight; j++)
 		{
-			ctrl = picture->SetPixel(i, j, Color(matr[j][i], matr[j][i], matr[j][i]));
+			ctrl = picture->SetPixel(i, j, Color(res_image[j][i], res_image[j][i], res_image[j][i]));
 			if (ctrl != Ok)
 			{
 				MessageBox(L"Что-то пошло не так при установлении цвета пикселя!", L"Ошибка");
@@ -135,44 +147,22 @@ void Drawer::LoadImage_(const wchar_t* path_file)
 	ConvertWB();
 }
 
-void Drawer::Norma()
+void Drawer::Norma(std::vector<std::vector<double>>& matrix)
 {
-	int h = matr.size();
-	int w = matr[0].size();
+	int h = matrix.size();
+	int w = matrix[0].size();
 	double min = 0, max = 0;
 	for (int i = 0; i < h; i++)
 	{
 		for (int j = 0; j < w; j++)
 		{
-			if (max < matr[i][j])
-				max = matr[i][j];
-			if (min > matr[i][j])
-				min = matr[i][j];
+			if (max < matrix[i][j])
+				max = matrix[i][j];
+			if (min > matrix[i][j])
+				min = matrix[i][j];
 		}
 	}
-
-	if (dec_log)
-	{
-		normirovka(min, max, matr);
-	}
-	else
-	{
-		double lmin = 0, lmax = 0;
-		for (int i = 0; i < h; i++)
-		{
-			for (int j = 0; j < w; j++)
-			{
-				matr[i][j] += min;
-				if (matr[i][j] != 0)
-					matr[i][j] = -log10(matr[i][j] / max);
-				if (lmin > matr[i][j])
-					lmin = matr[i][j];
-				if (lmax < matr[i][j])
-					lmax = matr[i][j];
-			}
-		}
-		normirovka(lmin, lmax, matr);
-	}
+	normirovka(min, max, matrix);
 }
 
 void Drawer::normirovka(double min, double max, vector<vector<double>>& mat)
@@ -191,4 +181,85 @@ void Drawer::OnLButtonDown(UINT nFlags, CPoint point)
 	dec_log = !dec_log;
 	Invalidate(FALSE);
 	CStatic::OnLButtonDown(nFlags, point);
+}
+
+void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
+{
+	matr_log = matr = get_matr;
+
+	int h = matr.size();
+	int w = matr[0].size();
+	double max = 0;
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			if (max < matr_log[i][j])
+				max = matr_log[i][j];
+		}
+	}
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			if (matr_log[i][j] != 0)
+				matr_log[i][j] = -log10(matr_log[i][j] / max);
+		}
+	}
+}
+
+std::vector<std::vector<double>> Drawer::GetMatr()
+{
+	int w = matr[0].size(), h = matr.size(), iter = 2;
+	bool step_w = false, step_h = false;
+	do
+	{
+		if (w <= iter && !step_w)
+		{
+			step_w = true;
+			w = iter;
+		}
+		if (h <= iter && !step_h)
+		{
+			step_h = true;
+			h = iter;
+		}
+		iter *= 2;
+	} while (!step_w || !step_h);
+
+	vector<vector<double>> res;
+	InterpolationMatr(res, matr, w, h);
+	return res;
+}
+
+void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h)
+{
+	result = vector<vector<double>>(h, vector<double>(w));
+
+	double d_x, d_y, im_w = _image[0].size(), im_h = _image.size();
+	int i_x, i_y;
+	double fR1, fR2;
+
+	double otn_w = (im_w - 1) / (w - 1), otn_h = (im_h - 1) / (h - 1);
+
+	for (int i = 0; i < h; i++)
+	{
+		d_y = i * otn_h; i_y = floor(d_y);
+		for (int j = 0; j < w; j++)
+		{
+			d_x = j * otn_w; i_x = floor(d_x);
+
+			if (i_x == _image[0].size() - 1)
+				i_x--;
+			if (i_y == _image.size() - 1)
+				i_y--;
+
+			fR1 = (i_x + 1. - d_x) * _image[i_y + 1][i_x] + (d_x - i_x) * _image[i_y + 1][i_x + 1];
+			fR2 = (i_x + 1. - d_x) * _image[i_y][i_x] + (d_x - i_x) * _image[i_y][i_x + 1];
+
+			result[i][j] = abs(i_y - d_y) * fR1 + abs(d_y - (i_y + 1)) * fR2;
+		}
+	}
 }
