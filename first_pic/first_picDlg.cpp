@@ -41,6 +41,18 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SPECTR, pic_spectr);
 	DDX_Control(pDX, IDC_PIC_RES, pic_res);
 	DDX_Control(pDX, IDC_PIC_SHUM, pic_shum);
+	DDX_Control(pDX, IDC_RGAUSS, r_gauss_kupol);
+	DDX_Control(pDX, IDC_RIMAGE, r_image);
+	DDX_Control(pDX, IDC_BUT_DEFAULT, but_default);
+	DDX_Control(pDX, IDC_ADD_KUP, but_add);
+	DDX_Control(pDX, IDC_CHANGE_KUP, but_change);
+	DDX_Control(pDX, IDC_DELETE_KUP, but_delete_one);
+	DDX_Control(pDX, IDC_DELETE_ALL, but_delete_all);
+	DDX_Control(pDX, IDC_EDIT2, edit_h);
+	DDX_Control(pDX, IDC_EDIT3, edit_w);
+	DDX_Control(pDX, IDC_BLOADIMAGE, but_load);
+	DDX_Control(pDX, IDC_TEXT_H, text_h);
+	DDX_Control(pDX, IDC_TEXT_W, text_w);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -73,6 +85,7 @@ BOOL CfirstpicDlg::OnInitDialog()
 
 	default_gauss();
 	image_start = false;
+	SetCheckR(true);
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -240,6 +253,7 @@ void CfirstpicDlg::OnBnClickedRimage()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	image_start = true;
+	SetCheckR(false);
 }
 
 
@@ -247,6 +261,7 @@ void CfirstpicDlg::OnBnClickedRgauss()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	image_start = false;
+	SetCheckR(true);
 }
 
 
@@ -287,6 +302,42 @@ void CfirstpicDlg::OnBnClickedBclear()
 
 	error = my_round(image_all.find_error(), 2);
 	UpdateData(FALSE);
+}
+
+void CfirstpicDlg::SetCheckR(bool value)
+{
+	if (value)
+	{
+		r_gauss_kupol.SetCheck(BST_CHECKED);
+		r_image.SetCheck(BST_UNCHECKED);
+		list_gauss.ShowWindow(SW_SHOW);
+		but_default.ShowWindow(SW_SHOW);
+		but_add.ShowWindow(SW_SHOW);
+		but_change.ShowWindow(SW_SHOW);
+		but_delete_one.ShowWindow(SW_SHOW);
+		but_delete_all.ShowWindow(SW_SHOW);
+		but_load.ShowWindow(SW_HIDE);
+		text_h.ShowWindow(SW_SHOW);
+		text_w.ShowWindow(SW_SHOW);
+		edit_h.ShowWindow(SW_SHOW);
+		edit_w.ShowWindow(SW_SHOW);
+	}
+	else
+	{
+		r_gauss_kupol.SetCheck(BST_UNCHECKED);
+		r_image.SetCheck(BST_CHECKED);
+		list_gauss.ShowWindow(SW_HIDE);
+		but_default.ShowWindow(SW_HIDE);
+		but_add.ShowWindow(SW_HIDE);
+		but_change.ShowWindow(SW_HIDE);
+		but_delete_one.ShowWindow(SW_HIDE);
+		but_delete_all.ShowWindow(SW_HIDE);
+		but_load.ShowWindow(SW_SHOW);
+		text_h.ShowWindow(SW_HIDE);
+		text_w.ShowWindow(SW_HIDE);
+		edit_h.ShowWindow(SW_HIDE);
+		edit_w.ShowWindow(SW_HIDE);
+	}
 }
 
 double my_round(double value, int num)

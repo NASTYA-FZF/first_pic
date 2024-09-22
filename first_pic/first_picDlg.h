@@ -60,6 +60,20 @@ public:
 	afx_msg void OnBnClickedBloadimage();
 	afx_msg void OnBnClickedBshum();
 	afx_msg void OnBnClickedBclear();
+	CButton r_gauss_kupol;
+	CButton r_image;
+
+	void SetCheckR(bool value); //true - gauss, false - image
+	CButton but_default;
+	CButton but_add;
+	CButton but_change;
+	CButton but_delete_one;
+	CButton but_delete_all;
+	CEdit edit_h;
+	CEdit edit_w;
+	CButton but_load;
+	CStatic text_h;
+	CStatic text_w;
 };
 
 double my_round(double value, int num);
