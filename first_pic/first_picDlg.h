@@ -58,4 +58,8 @@ public:
 	afx_msg void OnBnClickedRimage();
 	afx_msg void OnBnClickedRgauss();
 	afx_msg void OnBnClickedBloadimage();
+	afx_msg void OnBnClickedBshum();
+	afx_msg void OnBnClickedBclear();
 };
+
+double my_round(double value, int num);

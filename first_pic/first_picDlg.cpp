@@ -55,6 +55,8 @@ BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RIMAGE, &CfirstpicDlg::OnBnClickedRimage)
 	ON_BN_CLICKED(IDC_RGAUSS, &CfirstpicDlg::OnBnClickedRgauss)
 	ON_BN_CLICKED(IDC_BLOADIMAGE, &CfirstpicDlg::OnBnClickedBloadimage)
+	ON_BN_CLICKED(IDC_BSHUM, &CfirstpicDlg::OnBnClickedBshum)
+	ON_BN_CLICKED(IDC_BCLEAR, &CfirstpicDlg::OnBnClickedBclear)
 END_MESSAGE_MAP()
 
 
@@ -229,7 +231,7 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_spectr.SetMatr(image_all.GetAmplSpectr());
 	pic_res.SetMatr(image_all.GetImageRes());
 	Invalidate(FALSE);
-	error = image_all.find_error();
+	error = my_round(image_all.find_error(), 2);
 	UpdateData(FALSE);
 }
 
@@ -256,4 +258,39 @@ void CfirstpicDlg::OnBnClickedBloadimage()
 	auto path = change_image.GetPathName();
 	my_picture.LoadImage_(path);
 	Invalidate(FALSE);
+}
+
+
+void CfirstpicDlg::OnBnClickedBshum()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	UpdateData();
+	image_all.set_alpha(alpha);
+	image_all.generate_pic_with_shum();
+
+	pic_shum.SetMatr(image_all.GetImageShum());
+	pic_spectr.SetMatr(image_all.GetAmplSpectr());
+	pic_res.SetMatr(image_all.GetImageRes());
+	Invalidate(FALSE);
+}
+
+
+void CfirstpicDlg::OnBnClickedBclear()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	UpdateData();
+	image_all.set_gamma(gamma);
+	image_all.ProcessClearImage();
+	pic_spectr.SetMatr(image_all.GetAmplSpectr());
+	pic_res.SetMatr(image_all.GetImageRes());
+	Invalidate(FALSE);
+
+	error = my_round(image_all.find_error(), 2);
+	UpdateData(FALSE);
+}
+
+double my_round(double value, int num)
+{
+	double step = pow(10, num);
+	return round(value * step) / step;
 }

@@ -45,6 +45,7 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 
 my_image::my_image(vector<vector<double>> matr, double a, double g)
 {
+	clear();
 	image0 = matr;
 	h = image0.size();
 	w = image0[0].size();
@@ -80,6 +81,7 @@ std::vector<std::vector<double>> my_image::generate_shum()
 
 void my_image::generate_pic_with_shum()
 {
+	clear1();
 	auto sh = generate_shum();
 	double SumSh = energy(sh);
 
@@ -237,37 +239,20 @@ void my_image::clear()
 	image_shum.clear();
 	image_res.clear();
 	image0.clear();
+	ampl_spec.clear();
+}
+
+void my_image::clear1()
+{
+	image_res.clear();
+	image_shum.clear();
+	ampl_spec.clear();
 }
 
 void my_image::Process()
 {
 	generate_pic_with_shum();
-	vector<vector<base>> b(h, vector<base>(w));
-	for (int i = 0; i < h; i++)
-		b[i] = vector<base>(image_shum[i].begin(), image_shum[i].end());
-	fourea_image(b, true);
-	b[0][0] = base(0, 0);
-	filter(b);
-	b[0][0] = need;
-	fourea_image(b, false);
-	
-	double maxres = 0, minres = 0, max0 = 0, min0 = 0;
-	for (int i = 0; i < b.size(); i++)
-	{
-		image_res.push_back(vector<double>());
-		for (int j = 0; j < b[0].size(); j++)
-		{
-			image_res[i].push_back(b[i][j].real());
-			if (maxres < image_res[i][j])
-				maxres = image_res[i][j];
-			if (minres > image_res[i][j])
-				minres = image_res[i][j];
-			if (max0 < image0[i][j])
-				max0 = image0[i][j];
-			if (min0 > image0[i][j])
-				min0 = image0[i][j];
-		}
-	}
+	ProcessClearImage();
 }
 
 void my_image::Simmetria(vector<vector<base>>& fourea)
@@ -300,26 +285,36 @@ void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fou
 	}
 }
 
-//void my_image::Norma255(vector<vector<double>>& m)
-//{
-//	double max_m = m[0][0];
-//	for (int i = 0; i < m.size(); i++)
-//	{
-//		for (int j = 0; j < m[0].size(); j++)
-//		{
-//			if (max_m < m[i][j]) max_m = m[i][j];
-//		}
-//	}
-//
-//	for (int i = 0; i < m.size(); i++)
-//	{
-//		for (int j = 0; j < m[0].size(); j++)
-//		{
-//			m[i][j] = m[i][j] * 255 / max_m;
-//			//m[i][j] = 10 * log10(m[i][j] / max_m);
-//		}
-//	}
-//}
+void my_image::ProcessClearImage()
+{
+	image_res.clear();
+	vector<vector<base>> b(h, vector<base>(w));
+	for (int i = 0; i < h; i++)
+		b[i] = vector<base>(image_shum[i].begin(), image_shum[i].end());
+	fourea_image(b, true);
+	b[0][0] = base(0, 0);
+	filter(b);
+	b[0][0] = need;
+	fourea_image(b, false);
+
+	double maxres = 0, minres = 0, max0 = 0, min0 = 0;
+	for (int i = 0; i < b.size(); i++)
+	{
+		image_res.push_back(vector<double>());
+		for (int j = 0; j < b[0].size(); j++)
+		{
+			image_res[i].push_back(b[i][j].real());
+			if (maxres < image_res[i][j])
+				maxres = image_res[i][j];
+			if (minres > image_res[i][j])
+				minres = image_res[i][j];
+			if (max0 < image0[i][j])
+				max0 = image0[i][j];
+			if (min0 > image0[i][j])
+				min0 = image0[i][j];
+		}
+	}
+}
 
 vector<vector<double>> my_image::GetImageShum()
 {

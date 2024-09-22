@@ -41,11 +41,12 @@ public:
 	void set_alpha(double a);
 	void set_gamma(double g);
 	void clear();
+	void clear1();
 	void Process();
 	void Simmetria(vector<vector<base>>& fourea);
 	void NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num);
 
-	//void Norma255(vector<vector<double>>& m);
+	void ProcessClearImage();
 
 	vector<vector<double>> GetImageStart();
 	vector<vector<double>> GetImageShum();
