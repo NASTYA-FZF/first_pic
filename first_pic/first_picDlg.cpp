@@ -207,14 +207,11 @@ void CfirstpicDlg::OnBnClickedButDefault()
 void CfirstpicDlg::OnBnClickedOk()
 {
 	// TODO: добавьте свой код обработчика уведомлений
-	//my_picture.LoadImage_(L"real_dog.jpg");
-	//pic_spectr.LoadImage_(L"real_dog.jpg");
 	UpdateData();
 	if (!image_start)
 	{
 		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
 		my_picture.SetMatr(image_all.GetImageStart());
-		//my_picture.matr = image_all.GetImageStart();
 	}
 	else
 	{

@@ -145,6 +145,8 @@ void Drawer::LoadImage_(const wchar_t* path_file)
 	Bitmap pic(path_file);
 	picture = &pic;
 	ConvertWB();
+	matr_log = matr;
+	SetMatrLog();
 }
 
 void Drawer::Norma(std::vector<std::vector<double>>& matrix)
@@ -187,27 +189,7 @@ void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
 {
 	matr_log = matr = get_matr;
 
-	int h = matr.size();
-	int w = matr[0].size();
-	double max = 0;
-
-	for (int i = 0; i < h; i++)
-	{
-		for (int j = 0; j < w; j++)
-		{
-			if (max < matr_log[i][j])
-				max = matr_log[i][j];
-		}
-	}
-
-	for (int i = 0; i < h; i++)
-	{
-		for (int j = 0; j < w; j++)
-		{
-			if (matr_log[i][j] != 0)
-				matr_log[i][j] = -log10(matr_log[i][j] / max);
-		}
-	}
+	SetMatrLog();
 }
 
 std::vector<std::vector<double>> Drawer::GetMatr()
@@ -232,6 +214,31 @@ std::vector<std::vector<double>> Drawer::GetMatr()
 	vector<vector<double>> res;
 	InterpolationMatr(res, matr, w, h);
 	return res;
+}
+
+void Drawer::SetMatrLog()
+{
+	int h = matr_log.size();
+	int w = matr_log[0].size();
+	double max = 0;
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			if (max < matr_log[i][j])
+				max = matr_log[i][j];
+		}
+	}
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			if (matr_log[i][j] != 0)
+				matr_log[i][j] = -log10(matr_log[i][j] / max);
+		}
+	}
 }
 
 void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h)

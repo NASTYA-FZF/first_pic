@@ -31,6 +31,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	void SetMatr(std::vector<std::vector<double>> get_matr);
 	std::vector<std::vector<double>> GetMatr();
+	void SetMatrLog();
 };
 
 void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h);
