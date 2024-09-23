@@ -21,8 +21,8 @@ CfirstpicDlg::CfirstpicDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FIRST_PIC_DIALOG, pParent)
 	, width_pic(128)
 	, heaght_pic(128)
-	, alpha(0.01)
-	, gamma(0.98)
+	, alpha(10)
+	, gamma(98)
 	, error(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);

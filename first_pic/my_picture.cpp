@@ -14,7 +14,7 @@ gauss::gauss(double _A, int _x0, int _y0, double _s)
 my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 {
 	clear();
-	w = _w; h = _h; alpha = a; gamma = g;
+	w = _w; h = _h; alpha = a / 100; gamma = g / 100;
 
 	for (int i = 0; i < _gauss.size(); i++)
 	{
@@ -49,8 +49,8 @@ my_image::my_image(vector<vector<double>> matr, double a, double g)
 	image0 = matr;
 	h = image0.size();
 	w = image0[0].size();
-	alpha = a;
-	gamma = g;
+	alpha = a / 100;
+	gamma = g / 100;
 }
 
 std::vector<std::vector<double>> my_image::generate_shum()
