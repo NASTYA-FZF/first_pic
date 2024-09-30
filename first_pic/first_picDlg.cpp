@@ -223,10 +223,13 @@ void CfirstpicDlg::OnBnClickedOk()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	UpdateData();
+	double w;
+	double h;
 	if (!image_start)
 	{
 		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
 		my_picture.SetMatr(image_all.GetImageStart());
+		image_all = my_image(my_picture.GetMatr(), alpha, gamma);
 	}
 	else
 	{
@@ -239,6 +242,16 @@ void CfirstpicDlg::OnBnClickedOk()
 	}
 
 	image_all.Process();
+
+	w = my_picture.w_start;
+	h = my_picture.h_start;
+
+	pic_shum.w_start = w;
+	pic_shum.h_start = h;
+	pic_spectr.w_start = w;
+	pic_spectr.h_start = h;
+	pic_res.w_start = w;
+	pic_res.h_start = h;
 
 	pic_shum.SetMatr(image_all.GetImageShum());
 	pic_spectr.SetMatr(image_all.GetAmplSpectr());

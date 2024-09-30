@@ -226,12 +226,12 @@ std::vector<std::vector<double>> my_image::get_ampl_spec(std::vector<std::vector
 
 void my_image::set_alpha(double a)
 {
-	alpha = a;
+	alpha = a / 100;
 }
 
 void my_image::set_gamma(double g)
 {
-	gamma = g;
+	gamma = g / 100;
 }
 
 void my_image::clear()

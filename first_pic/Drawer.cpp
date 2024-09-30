@@ -187,6 +187,7 @@ void Drawer::OnLButtonDown(UINT nFlags, CPoint point)
 
 void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
 {
+	DeleteNull(get_matr);
 	matr_log = matr = get_matr;
 
 	SetMatrLog();
@@ -212,7 +213,8 @@ std::vector<std::vector<double>> Drawer::GetMatr()
 	} while (!step_w || !step_h);
 
 	vector<vector<double>> res;
-	InterpolationMatr(res, matr, w, h);
+	AddNull(res, w, h);
+	//InterpolationMatr(res, matr, w, h);
 	return res;
 }
 
@@ -238,6 +240,29 @@ void Drawer::SetMatrLog()
 			if (matr_log[i][j] != 0)
 				matr_log[i][j] = -log10(matr_log[i][j] / max);
 		}
+	}
+}
+
+void Drawer::AddNull(std::vector<std::vector<double>>& result, int w_new, int h_new)
+{
+	w_start = matr[0].size();
+	h_start = matr.size();
+
+	result = matr;
+	result.resize(h_new);
+	for (int i = 0; i < h_new; i++)
+	{
+		result[i].resize(w_new, 0);
+	}
+}
+
+void Drawer::DeleteNull(std::vector<std::vector<double>>& result)
+{
+	result.resize(h_start);
+
+	for (int i = 0; i < h_start; i++)
+	{
+		result[i].resize(w_start);
 	}
 }
 
