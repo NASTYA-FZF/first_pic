@@ -53,15 +53,13 @@ my_image::my_image(vector<vector<double>> matr, double a, double g)
 	gamma = g / 100;
 }
 
-std::vector<std::vector<double>> my_image::generate_shum()
+void my_image::generate_shum(std::vector<std::vector<double>>& shum)
 {
-	vector<vector<double>> n0;
 	for(int i = 0; i < h; i++)
 	{
-		n0.push_back(vector<double>());
 		for (int j = 0; j < w; j++)
 		{
-			n0[i].push_back((double)(rand()) / RAND_MAX * 2 - 1);
+			shum[i][j] = (double)(rand()) / RAND_MAX * 2 - 1;
 		}
 	}
 
@@ -71,28 +69,26 @@ std::vector<std::vector<double>> my_image::generate_shum()
 		{
 			for (int k = 0; k < 11; k++)
 			{
-				n0[i][j] += (double)(rand()) / RAND_MAX * 2 - 1;
+				shum[i][j] += (double)(rand()) / RAND_MAX * 2 - 1; //по центральной предельной теореме
 			}
 		}
 	}
-
-	return n0;
 }
 
 void my_image::generate_pic_with_shum()
 {
 	clear1();
-	auto sh = generate_shum();
-	double SumSh = energy(sh);
+	vector<vector<double>> sh(h, vector<double>(w)); //вектор шумов
+	generate_shum(sh); //генерация шума
+	double SumSh = energy(sh); //энергия исходного изображения
 
-	double bet = sqrt(alpha * energy(image0) / SumSh);
-
+	double bet = sqrt(alpha * energy(image0) / SumSh); //коэффициент бетта
+	image_shum = vector<vector<double>>(h, vector<double>(w)); //выделяем память
 	for (int i = 0; i < h; i++)
 	{
-		image_shum.push_back(vector<double>());
 		for (int j = 0; j < w; j++)
 		{
-			image_shum[i].push_back(image0[i][j] + bet * sh[i][j]);
+			image_shum[i][j] = image0[i][j] + bet * sh[i][j]; //накладываем шум
 		}
 	}
 }
@@ -296,22 +292,12 @@ void my_image::ProcessClearImage()
 	filter(b);
 	b[0][0] = need;
 	fourea_image(b, false);
-
-	double maxres = 0, minres = 0, max0 = 0, min0 = 0;
 	for (int i = 0; i < b.size(); i++)
 	{
 		image_res.push_back(vector<double>());
 		for (int j = 0; j < b[0].size(); j++)
 		{
 			image_res[i].push_back(b[i][j].real());
-			if (maxres < image_res[i][j])
-				maxres = image_res[i][j];
-			if (minres > image_res[i][j])
-				minres = image_res[i][j];
-			if (max0 < image0[i][j])
-				max0 = image0[i][j];
-			if (min0 > image0[i][j])
-				min0 = image0[i][j];
 		}
 	}
 }
