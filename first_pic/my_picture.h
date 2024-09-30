@@ -50,7 +50,7 @@ public:
 	//преобразование Фурье по строкам и столбцам
 	void fourea_image(std::vector<std::vector<base>>& vec, bool invert);
 	//получение колонки матрицы (по ссылке сделать, чтобы не было копирования)
-	std::vector<base> get_column(std::vector<std::vector<base>> matr, int num);
+	void get_column(std::vector<base>& res, std::vector<std::vector<base>> matr, int num);
 	//установление колонки
 	void set_column(std::vector<std::vector<base>>& matr, std::vector<base> vec, int num);
 	//фильтрация (оптимизировать)
@@ -58,7 +58,7 @@ public:
 	//поиск ошибки (сделать через 2 параметра)
 	double find_error();
 	//получение ампл. спектра (без копирования)
-	std::vector<std::vector<double>> get_ampl_spec(std::vector<std::vector<base>> matr, double& maximum);
+	void get_ampl_spec(std::vector<std::vector<base>> matr);
 	//установка параметра зашумления
 	void set_alpha(double a);
 	//установка параметра фильтрации
@@ -71,7 +71,7 @@ public:
 	//Симметрия ампл. спектра
 	void Simmetria(vector<vector<base>>& fourea);
 	//получение спектра из середины
-	void NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num);
+	void NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num, double& energy);
 	//очищение изображения
 	void ProcessClearImage();
 

@@ -100,7 +100,7 @@ double my_image::energy(std::vector<std::vector<double>> image)
 	{
 		for (int j = 0; j < w; j++)
 		{
-			res += image[i][j] * image[i][j];
+			res += image[i][j] * image[i][j]; //энергия как сумма квадратов отсчетов
 		}
 	}
 	return res;
@@ -135,26 +135,22 @@ void my_image::fourea_image(std::vector<std::vector<base>>& fourea, bool invert)
 	for (int i = 0; i < h; i++)
 		fft(fourea[i], invert);
 
-	vector<base> vec_help;
+	vector<base> vec_help(h);
 	for (int j = 0; j < w; j++)
 	{
-		vec_help = get_column(fourea, j);
+		get_column(vec_help, fourea, j);
 		fft(vec_help, invert);
 		set_column(fourea, vec_help, j);
 	}
 	need = fourea[0][0];
 }
 
-std::vector<base> my_image::get_column(std::vector<std::vector<base>> matr, int num)
+void my_image::get_column(std::vector<base>& res, std::vector<std::vector<base>> matr, int num)
 {
-	std::vector<base> res;
-
 	for (int row = 0; row < h; row++)
 	{
-		res.push_back(matr[row][num]);
+		res[row] = matr[row][num];
 	}
-
-	return res;
 }
 
 void my_image::set_column(std::vector<std::vector<base>>& matr, std::vector<base> vec, int num)
@@ -169,22 +165,23 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 {
 	double max_A = 0, mmm = 0;
 	Simmetria(fourea);
-	ampl_spec = get_ampl_spec(fourea, max_A);
-	double en = energy(ampl_spec), en1;
+	ampl_spec = vector<vector<double>>(h, vector<double>(w));
+	get_ampl_spec(fourea);
+	double en = energy(ampl_spec);
+	double en1;
 
 	vector<vector<base>> new_vec(fourea.size(), vector<base>(fourea[0].size(), base(0, 0)));
-	int num = 0; bool flag;
+	int num = 0;
 	do
 	{
 		num++;
 		if (2 * num > w || 2 * num > h) break;
-		NewSpectr(new_vec, fourea, num);
-		en1 = energy(get_ampl_spec(new_vec, mmm));
-	} while (en1 < gamma * en);
+		NewSpectr(new_vec, fourea, num, en1);
+	} while (en1 < gamma * en); //цикл много времени кушает
 
 	fourea = new_vec;
 
-	ampl_spec = get_ampl_spec(fourea, max_A);
+	get_ampl_spec(fourea);
 	Simmetria(fourea);
 }
 
@@ -204,20 +201,15 @@ double my_image::find_error()
 	return res;
 }
 
-std::vector<std::vector<double>> my_image::get_ampl_spec(std::vector<std::vector<base>> matr, double& maximum)
+void my_image::get_ampl_spec(std::vector<std::vector<base>> matr)
 {
-	vector<vector<double>> ampl_spectr;
 	for (int i = 0; i < h; i++)
 	{
-		ampl_spectr.push_back(vector<double>());
 		for (int j = 0; j < w; j++)
 		{
-			ampl_spectr[i].push_back(AMPL(matr[i][j]));
-			if (maximum < ampl_spectr[i][j])
-				maximum = ampl_spectr[i][j];
+			ampl_spec[i][j] = AMPL(matr[i][j]);
 		}
 	}
-	return ampl_spectr;
 }
 
 void my_image::set_alpha(double a)
@@ -271,13 +263,17 @@ void my_image::Simmetria(vector<vector<base>>& fourea)
 	}
 }
 
-void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num)
+void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fourea, int num, double& energy)
 {
 	int height = fourea.size() / 2, width = fourea[0].size() / 2;
+	energy = 0;
 	for (int i = 0; i < 2 * num; i++)
 	{
 		for (int j = 0; j < 2 * num; j++)
+		{
 			new_vec[height - 1 + num - i][width - 1 + num - j] = fourea[height - 1 + num - i][width - 1 + num - j];
+			energy += P2(AMPL(new_vec[height - 1 + num - i][width - 1 + num - j]));
+		}
 	}
 }
 
@@ -292,36 +288,32 @@ void my_image::ProcessClearImage()
 	filter(b);
 	b[0][0] = need;
 	fourea_image(b, false);
+	image_res = vector<vector<double>>(h, vector<double>(w));
 	for (int i = 0; i < b.size(); i++)
 	{
-		image_res.push_back(vector<double>());
 		for (int j = 0; j < b[0].size(); j++)
 		{
-			image_res[i].push_back(b[i][j].real());
+			image_res[i][j] = b[i][j].real();
 		}
 	}
 }
 
 vector<vector<double>> my_image::GetImageShum()
 {
-	//Norma255(image_shum);
 	return image_shum;
 }
 
 vector<vector<double>> my_image::GetImageRes()
 {
-	//Norma255(image_res);
 	return image_res;
 }
 
 vector<vector<double>> my_image::GetAmplSpectr()
 {
-	//Norma255(ampl_spec);
 	return ampl_spec;
 }
 
 vector<vector<double>> my_image::GetImageStart()
 {
-	//Norma255(image0);
 	return image0;
 }
