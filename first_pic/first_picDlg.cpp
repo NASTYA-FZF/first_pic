@@ -266,8 +266,8 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
 	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
-	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
-	err_sig_shum = my_round(image_all.find_error(my_picture.matr, pic_shum.matr), 2);
+	error = my_round(image_all.find_PSNR(my_picture.matr, pic_res.matr), 2);
+	err_sig_shum = my_round(image_all.find_PSNR(my_picture.matr, pic_shum.matr), 2);
 	UpdateData(FALSE);
 }
 

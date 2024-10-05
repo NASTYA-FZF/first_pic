@@ -235,8 +235,19 @@ double my_image::find_PSNR(std::vector<std::vector<double>> oneImage, std::vecto
 		return -1;
 
 	double znamen = 0;
+	double chislit = 0;
 	int N = oneImage.size() * oneImage[0].size();
-	double chislit = P2(255);
+
+	for (int i = 0; i < oneImage.size(); i++)
+	{
+		for (int j = 0; j < oneImage[0].size(); j++)
+		{
+			if (chislit < oneImage[i][j])
+				chislit = oneImage[i][j];
+		}
+	}
+
+	chislit = P2(chislit);
 
 	for (int i = 0; i < oneImage.size(); i++)
 	{
