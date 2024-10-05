@@ -31,14 +31,16 @@ class my_image
 	double alpha, gamma;
 	//ширина и высота изображения
 	int w, h;
+	int newW, newH;
 	//для зануления левого верхнего угла
 	base need;
+	bool interpolation;
 
 public:
 	//конструкторы
 	my_image() {}
-	my_image(vector<gauss> many_gauss, int _w, int _h, double a, double g); //если гауссов купол
-	my_image(vector<vector<double>> matr, double a, double g); //если изображение (сюда можно перенести доопределение до степени 2)
+	my_image(vector<gauss> many_gauss, int _w, int _h, double a, double g, bool val); //если гауссов купол
+	my_image(vector<vector<double>> matr, double a, double g, bool val); //если изображение (сюда можно перенести доопределение до степени 2)
 	//функция генерации шума
 	void generate_shum(std::vector<std::vector<double>>& shum);
 	//функция, которая накладывает шум
@@ -56,7 +58,7 @@ public:
 	//фильтрация (оптимизировать)
 	void filter(std::vector<std::vector<base>>& fourea);
 	//поиск ошибки (сделать через 2 параметра)
-	double find_error();
+	double find_error(std::vector<std::vector<double>> oneImage, std::vector<std::vector<double>> twoImage);
 	//получение ампл. спектра (без копирования)
 	void get_ampl_spec(std::vector<std::vector<base>> matr);
 	//установка параметра зашумления
@@ -75,9 +77,16 @@ public:
 	//очищение изображения
 	void ProcessClearImage();
 
+	void AddNull(int w_new, int h_new);
+	void DeleteNull(std::vector<std::vector<double>>& matr);
+	void GetWHnew();
+	void SetInterOrNull(bool value);
+
 	//получение изображений на выходе
 	vector<vector<double>> GetImageStart();
 	vector<vector<double>> GetImageShum();
 	vector<vector<double>> GetImageRes();
 	vector<vector<double>> GetAmplSpectr();
 };
+
+void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h);

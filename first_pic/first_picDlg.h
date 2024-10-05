@@ -38,6 +38,7 @@ public:
 	double gamma;
 	double error;
 	bool image_start;
+	bool inter_or_null;
 	CListBox list_gauss;
 	void add_gauss_in_list(gauss for_add, int row);
 	afx_msg void OnBnClickedAddKup();
@@ -74,6 +75,10 @@ public:
 	CButton but_load;
 	CStatic text_h;
 	CStatic text_w;
+	afx_msg void OnBnClickedRinter();
+	afx_msg void OnBnClickedRnull();
+	CButton r_inter;
+	CButton r_null;
 };
 
 double my_round(double value, int num);

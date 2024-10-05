@@ -19,10 +19,10 @@
 
 CfirstpicDlg::CfirstpicDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FIRST_PIC_DIALOG, pParent)
-	, width_pic(128)
-	, heaght_pic(128)
-	, alpha(10)
-	, gamma(98)
+	, width_pic(127)
+	, heaght_pic(127)
+	, alpha(0)
+	, gamma(100)
 	, error(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -53,6 +53,8 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BLOADIMAGE, but_load);
 	DDX_Control(pDX, IDC_TEXT_H, text_h);
 	DDX_Control(pDX, IDC_TEXT_W, text_w);
+	DDX_Control(pDX, IDC_RINTER, r_inter);
+	DDX_Control(pDX, IDC_RNULL, r_null);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -69,6 +71,8 @@ BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BLOADIMAGE, &CfirstpicDlg::OnBnClickedBloadimage)
 	ON_BN_CLICKED(IDC_BSHUM, &CfirstpicDlg::OnBnClickedBshum)
 	ON_BN_CLICKED(IDC_BCLEAR, &CfirstpicDlg::OnBnClickedBclear)
+	ON_BN_CLICKED(IDC_RINTER, &CfirstpicDlg::OnBnClickedRinter)
+	ON_BN_CLICKED(IDC_RNULL, &CfirstpicDlg::OnBnClickedRnull)
 END_MESSAGE_MAP()
 
 
@@ -86,6 +90,9 @@ BOOL CfirstpicDlg::OnInitDialog()
 	default_gauss();
 	image_start = false;
 	SetCheckR(true);
+	inter_or_null = true;
+	r_inter.SetCheck(BST_CHECKED);
+	r_null.SetCheck(BST_UNCHECKED);
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -223,13 +230,12 @@ void CfirstpicDlg::OnBnClickedOk()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	UpdateData();
-	double w;
-	double h;
+	//double w;
+	//double h;
 	if (!image_start)
 	{
-		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma);
-		my_picture.SetMatr(image_all.GetImageStart());
-		image_all = my_image(my_picture.GetMatr(), alpha, gamma);
+		image_all = my_image(vec_gauss, width_pic, heaght_pic, alpha, gamma, inter_or_null);
+		//image_all = my_image(my_picture.GetMatr(), alpha, gamma);
 	}
 	else
 	{
@@ -238,12 +244,12 @@ void CfirstpicDlg::OnBnClickedOk()
 			MessageBox(L"Нет картинки!", L"Ошибка!");
 			return;
 		}
-		image_all = my_image(my_picture.GetMatr(), alpha, gamma);
+		image_all = my_image(my_picture.GetMatr(), alpha, gamma, inter_or_null);
 	}
 
 	image_all.Process();
 
-	w = my_picture.w_start;
+	/*w = my_picture.w_start;
 	h = my_picture.h_start;
 
 	pic_shum.w_start = w;
@@ -251,13 +257,14 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_spectr.w_start = w;
 	pic_spectr.h_start = h;
 	pic_res.w_start = w;
-	pic_res.h_start = h;
+	pic_res.h_start = h;*/
 
+	my_picture.SetMatr(image_all.GetImageStart());
 	pic_shum.SetMatr(image_all.GetImageShum());
 	pic_spectr.SetMatr(image_all.GetAmplSpectr());
 	pic_res.SetMatr(image_all.GetImageRes());
 	Invalidate(FALSE);
-	error = my_round(image_all.find_error(), 2);
+	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
 	UpdateData(FALSE);
 }
 
@@ -313,7 +320,7 @@ void CfirstpicDlg::OnBnClickedBclear()
 	pic_res.SetMatr(image_all.GetImageRes());
 	Invalidate(FALSE);
 
-	error = my_round(image_all.find_error(), 2);
+	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
 	UpdateData(FALSE);
 }
 
@@ -357,4 +364,22 @@ double my_round(double value, int num)
 {
 	double step = pow(10, num);
 	return round(value * step) / step;
+}
+
+
+void CfirstpicDlg::OnBnClickedRinter()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	inter_or_null = true;
+	r_inter.SetCheck(BST_CHECKED);
+	r_null.SetCheck(BST_UNCHECKED);
+}
+
+
+void CfirstpicDlg::OnBnClickedRnull()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	inter_or_null = false;
+	r_inter.SetCheck(BST_UNCHECKED);
+	r_null.SetCheck(BST_CHECKED);
 }

@@ -11,9 +11,10 @@ gauss::gauss(double _A, int _x0, int _y0, double _s)
 	A = _A; p0 = my_point_int(_x0, _y0); sigma = _s;
 }
 
-my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
+my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g, bool val)
 {
 	clear();
+	interpolation = val;
 	w = _w; h = _h; alpha = a / 100; gamma = g / 100;
 
 	for (int i = 0; i < _gauss.size(); i++)
@@ -41,31 +42,48 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g)
 			}
 		}
 	}
+
+	GetWHnew();
+	if (interpolation)
+	{
+		InterpolationMatr(image0, image0, newW, newH);
+	}
+	else
+		AddNull(newW, newH);
 }
 
-my_image::my_image(vector<vector<double>> matr, double a, double g)
+my_image::my_image(vector<vector<double>> matr, double a, double g, bool val)
 {
 	clear();
+	interpolation = val;
 	image0 = matr;
 	h = image0.size();
 	w = image0[0].size();
 	alpha = a / 100;
 	gamma = g / 100;
+
+	GetWHnew();
+	if (interpolation)
+	{
+		InterpolationMatr(image0, image0, newW, newH);
+	}
+	else
+		AddNull(newW, newH);
 }
 
 void my_image::generate_shum(std::vector<std::vector<double>>& shum)
 {
-	for(int i = 0; i < h; i++)
+	for(int i = 0; i < newH; i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < newW; j++)
 		{
 			shum[i][j] = (double)(rand()) / RAND_MAX * 2 - 1;
 		}
 	}
 
-	for (int i = 0; i < h; i++)
+	for (int i = 0; i < newH; i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < newW; j++)
 		{
 			for (int k = 0; k < 11; k++)
 			{
@@ -78,17 +96,21 @@ void my_image::generate_shum(std::vector<std::vector<double>>& shum)
 void my_image::generate_pic_with_shum()
 {
 	clear1();
-	vector<vector<double>> sh(h, vector<double>(w)); //вектор шумов
+	vector<vector<double>> sh(newH, vector<double>(newW)); //вектор шумов
 	generate_shum(sh); //генерация шума
 	double SumSh = energy(sh); //энергия исходного изображения
 
 	double bet = sqrt(alpha * energy(image0) / SumSh); //коэффициент бетта
-	image_shum = vector<vector<double>>(h, vector<double>(w)); //выделяем память
-	for (int i = 0; i < h; i++)
+	image_shum = vector<vector<double>>(newH, vector<double>(newW)); //выделяем память
+	for (int i = 0; i < newH; i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < newW; j++)
 		{
 			image_shum[i][j] = image0[i][j] + bet * sh[i][j]; //накладываем шум
+			if (!interpolation && (i >= h || j >= w))
+			{
+				image_shum[i][j] = image0[i][j];
+			}
 		}
 	}
 }
@@ -96,9 +118,11 @@ void my_image::generate_pic_with_shum()
 double my_image::energy(std::vector<std::vector<double>> image)
 {
 	double res = 0;
-	for (int i = 0; i < h; i++)
+	double curH = image.size();
+	double curW = image[0].size();
+	for (int i = 0; i < curH; i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < curW; j++)
 		{
 			res += image[i][j] * image[i][j]; //энергия как сумма квадратов отсчетов
 		}
@@ -132,11 +156,11 @@ void my_image::fft(vector<base>& a, bool invert)
 
 void my_image::fourea_image(std::vector<std::vector<base>>& fourea, bool invert)
 {
-	for (int i = 0; i < h; i++)
+	for (int i = 0; i < newH; i++)
 		fft(fourea[i], invert);
 
-	vector<base> vec_help(h);
-	for (int j = 0; j < w; j++)
+	vector<base> vec_help(newH);
+	for (int j = 0; j < newW; j++)
 	{
 		get_column(vec_help, fourea, j);
 		fft(vec_help, invert);
@@ -147,7 +171,7 @@ void my_image::fourea_image(std::vector<std::vector<base>>& fourea, bool invert)
 
 void my_image::get_column(std::vector<base>& res, std::vector<std::vector<base>> matr, int num)
 {
-	for (int row = 0; row < h; row++)
+	for (int row = 0; row < newH; row++)
 	{
 		res[row] = matr[row][num];
 	}
@@ -155,7 +179,7 @@ void my_image::get_column(std::vector<base>& res, std::vector<std::vector<base>>
 
 void my_image::set_column(std::vector<std::vector<base>>& matr, std::vector<base> vec, int num)
 {
-	for (int row = 0; row < h; row++)
+	for (int row = 0; row < newH; row++)
 	{
 		matr[row][num] = vec[row];
 	}
@@ -165,7 +189,7 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 {
 	double max_A = 0, mmm = 0;
 	Simmetria(fourea);
-	ampl_spec = vector<vector<double>>(h, vector<double>(w));
+	ampl_spec = vector<vector<double>>(newH, vector<double>(newW));
 	get_ampl_spec(fourea);
 	double en = energy(ampl_spec);
 	double en1;
@@ -175,7 +199,7 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 	do
 	{
 		num++;
-		if (2 * num > w || 2 * num > h) break;
+		if (2 * num > newW || 2 * num > newH) break;
 		NewSpectr(new_vec, fourea, num, en1);
 	} while (en1 < gamma * en); //цикл много времени кушает
 
@@ -185,16 +209,19 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 	Simmetria(fourea);
 }
 
-double my_image::find_error()
+double my_image::find_error(std::vector<std::vector<double>> oneImage, std::vector<std::vector<double>> twoImage)
 {
-	double znamen = energy(image0);
+	if (oneImage.size() != twoImage.size() || oneImage[0].size() != twoImage[0].size())
+		return -1;
+
+	double znamen = energy(oneImage);
 	double chislit = 0;
 
-	for (int i = 0; i < h; i++)
+	for (int i = 0; i < oneImage.size(); i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < oneImage[0].size(); j++)
 		{
-			chislit += P2(image0[i][j] - image_res[i][j]);
+			chislit += P2(oneImage[i][j] - twoImage[i][j]);
 		}
 	}
 	double res = chislit / znamen * 100;
@@ -203,9 +230,9 @@ double my_image::find_error()
 
 void my_image::get_ampl_spec(std::vector<std::vector<base>> matr)
 {
-	for (int i = 0; i < h; i++)
+	for (int i = 0; i < newH; i++)
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < newW; j++)
 		{
 			ampl_spec[i][j] = AMPL(matr[i][j]);
 		}
@@ -280,15 +307,15 @@ void my_image::NewSpectr(vector<vector<base>>& new_vec, vector<vector<base>> fou
 void my_image::ProcessClearImage()
 {
 	image_res.clear();
-	vector<vector<base>> b(h, vector<base>(w));
-	for (int i = 0; i < h; i++)
+	vector<vector<base>> b(newH, vector<base>(newW));
+	for (int i = 0; i < newH; i++)
 		b[i] = vector<base>(image_shum[i].begin(), image_shum[i].end());
 	fourea_image(b, true);
 	b[0][0] = base(0, 0);
 	filter(b);
 	b[0][0] = need;
 	fourea_image(b, false);
-	image_res = vector<vector<double>>(h, vector<double>(w));
+	image_res = vector<vector<double>>(newH, vector<double>(newW));
 	for (int i = 0; i < b.size(); i++)
 	{
 		for (int j = 0; j < b[0].size(); j++)
@@ -298,13 +325,65 @@ void my_image::ProcessClearImage()
 	}
 }
 
+void my_image::AddNull(int w_new, int h_new)
+{
+	image0.resize(h_new);
+	for (int i = 0; i < h_new; i++)
+	{
+		image0[i].resize(w_new, 0);
+	}
+}
+
+void my_image::DeleteNull(std::vector<std::vector<double>>& matr)
+{
+	matr.resize(h);
+
+	for (int i = 0; i < h; i++)
+	{
+		matr[i].resize(w);
+	}
+}
+
+void my_image::GetWHnew()
+{
+	int iter = 2;
+	bool readyW = false;
+	bool readyH = false;
+	newW = 0;
+	newH = 0;
+
+	while (!readyW || !readyH)
+	{
+		if (w <= iter && !readyW)
+		{
+			newW = iter;
+			readyW = true;
+		}
+		if (h <= iter && !readyH)
+		{
+			newH = iter;
+			readyH = true;
+		}
+		iter *= 2;
+	}
+}
+
+void my_image::SetInterOrNull(bool value)
+{
+	interpolation = value;
+}
+
 vector<vector<double>> my_image::GetImageShum()
 {
+	if (!interpolation)
+		DeleteNull(image_shum);
 	return image_shum;
 }
 
 vector<vector<double>> my_image::GetImageRes()
 {
+	if (!interpolation)
+		DeleteNull(image_res);
 	return image_res;
 }
 
@@ -315,5 +394,7 @@ vector<vector<double>> my_image::GetAmplSpectr()
 
 vector<vector<double>> my_image::GetImageStart()
 {
+	if (!interpolation)
+		DeleteNull(image0);
 	return image0;
 }

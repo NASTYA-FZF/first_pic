@@ -187,7 +187,7 @@ void Drawer::OnLButtonDown(UINT nFlags, CPoint point)
 
 void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
 {
-	DeleteNull(get_matr);
+	//DeleteNull(get_matr);
 	matr_log = matr = get_matr;
 
 	SetMatrLog();
@@ -195,7 +195,7 @@ void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
 
 std::vector<std::vector<double>> Drawer::GetMatr()
 {
-	int w = matr[0].size(), h = matr.size(), iter = 2;
+	/*int w = matr[0].size(), h = matr.size(), iter = 2;
 	bool step_w = false, step_h = false;
 	do
 	{
@@ -212,10 +212,10 @@ std::vector<std::vector<double>> Drawer::GetMatr()
 		iter *= 2;
 	} while (!step_w || !step_h);
 
-	vector<vector<double>> res;
-	AddNull(res, w, h);
+	vector<vector<double>> res;*/
+	//AddNull(res, w, h);
 	//InterpolationMatr(res, matr, w, h);
-	return res;
+	return matr;
 }
 
 void Drawer::SetMatrLog()
@@ -243,28 +243,28 @@ void Drawer::SetMatrLog()
 	}
 }
 
-void Drawer::AddNull(std::vector<std::vector<double>>& result, int w_new, int h_new)
-{
-	w_start = matr[0].size();
-	h_start = matr.size();
-
-	result = matr;
-	result.resize(h_new);
-	for (int i = 0; i < h_new; i++)
-	{
-		result[i].resize(w_new, 0);
-	}
-}
-
-void Drawer::DeleteNull(std::vector<std::vector<double>>& result)
-{
-	result.resize(h_start);
-
-	for (int i = 0; i < h_start; i++)
-	{
-		result[i].resize(w_start);
-	}
-}
+//void Drawer::AddNull(std::vector<std::vector<double>>& result, int w_new, int h_new)
+//{
+//	w_start = matr[0].size();
+//	h_start = matr.size();
+//
+//	result = matr;
+//	result.resize(h_new);
+//	for (int i = 0; i < h_new; i++)
+//	{
+//		result[i].resize(w_new, 0);
+//	}
+//}
+//
+//void Drawer::DeleteNull(std::vector<std::vector<double>>& result)
+//{
+//	result.resize(h_start);
+//
+//	for (int i = 0; i < h_start; i++)
+//	{
+//		result[i].resize(w_start);
+//	}
+//}
 
 void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h)
 {
