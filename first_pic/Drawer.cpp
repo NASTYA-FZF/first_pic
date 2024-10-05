@@ -20,6 +20,7 @@ Drawer::Drawer()
 	if (s != Ok) MessageBox(L"s != Ok", L"Error!");
 	first_start = true;
 	dec_log = true;
+	is_ampl = false;
 }
 
 Drawer::~Drawer()
@@ -79,11 +80,13 @@ void Drawer::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	picture = &pic;
 
 	CreateImageFromArr();
-	double scaleX = (double)(my_rect.right - my_rect.left) / pWidth;
-	double scaleY = (double)(my_rect.bottom - my_rect.top) / pHeight;
-	//draw_in_buffer.ScaleTransform(scaleX, scaleY);
+	double scaleX = (double)(my_rect.right - my_rect.left) / matr[0].size();
+	double scaleY = (double)(my_rect.bottom - my_rect.top) / matr.size();
 
 	draw_in_buffer.DrawImage(picture, Rect(0, 0, picture->GetWidth(), picture->GetHeight()));
+
+	Pen p_granica(Color::Green, 5);
+	if (is_ampl) draw_in_buffer.DrawRectangle(&p_granica, (REAL)(lx * scaleX), (REAL)(ly * scaleY), (REAL)(width_granica * scaleX), (REAL)(width_granica * scaleY));
 
 	wnd.DrawImage(&buffer, 0, 0, 0, 0, lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom, UnitPixel);
 }
@@ -185,9 +188,9 @@ void Drawer::OnLButtonDown(UINT nFlags, CPoint point)
 	CStatic::OnLButtonDown(nFlags, point);
 }
 
-void Drawer::SetMatr(std::vector<std::vector<double>> get_matr)
+void Drawer::SetMatr(std::vector<std::vector<double>> get_matr, double x, double y, double wid, bool ampl)
 {
-	//DeleteNull(get_matr);
+	lx = x; ly = y; width_granica = wid; is_ampl = ampl;
 	matr_log = matr = get_matr;
 
 	SetMatrLog();

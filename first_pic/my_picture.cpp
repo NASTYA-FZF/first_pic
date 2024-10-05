@@ -197,10 +197,13 @@ void my_image::filter(std::vector<std::vector<base>>& fourea)
 	do
 	{
 		num++;
-		if (2 * num > newW || 2 * num > newH) break;
+		if (2 * num >= newW || 2 * num >= newH) break;
 		NewSpectr(new_vec, fourea, num, en1);
 	} while (en1 < gamma * en); //цикл много времени кушает
 
+	lx = fourea[0].size() / 2 - num;
+	ly = fourea.size() / 2 - num;
+	wid = 2 * num;
 	fourea = new_vec;
 
 	get_ampl_spec(fourea);

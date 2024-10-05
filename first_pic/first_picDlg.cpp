@@ -261,10 +261,10 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_res.w_start = w;
 	pic_res.h_start = h;*/
 
-	my_picture.SetMatr(image_all.GetImageStart());
-	pic_shum.SetMatr(image_all.GetImageShum());
-	pic_spectr.SetMatr(image_all.GetAmplSpectr());
-	pic_res.SetMatr(image_all.GetImageRes());
+	my_picture.SetMatr(image_all.GetImageStart(), image_all.lx, image_all.ly, image_all.wid, false);
+	pic_shum.SetMatr(image_all.GetImageShum(), image_all.lx, image_all.ly, image_all.wid, false);
+	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
+	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
 	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
 	err_sig_shum = my_round(image_all.find_error(my_picture.matr, pic_shum.matr), 2);
@@ -306,9 +306,9 @@ void CfirstpicDlg::OnBnClickedBshum()
 	image_all.set_alpha(alpha);
 	image_all.generate_pic_with_shum();
 
-	pic_shum.SetMatr(image_all.GetImageShum());
-	pic_spectr.SetMatr(image_all.GetAmplSpectr());
-	pic_res.SetMatr(image_all.GetImageRes());
+	pic_shum.SetMatr(image_all.GetImageShum(), image_all.lx, image_all.ly, image_all.wid, false);
+	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
+	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
 }
 
@@ -319,8 +319,8 @@ void CfirstpicDlg::OnBnClickedBclear()
 	UpdateData();
 	image_all.set_gamma(gamma);
 	image_all.ProcessClearImage();
-	pic_spectr.SetMatr(image_all.GetAmplSpectr());
-	pic_res.SetMatr(image_all.GetImageRes());
+	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
+	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
 
 	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);

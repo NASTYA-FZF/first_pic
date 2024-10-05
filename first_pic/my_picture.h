@@ -87,6 +87,10 @@ public:
 	vector<vector<double>> GetImageShum();
 	vector<vector<double>> GetImageRes();
 	vector<vector<double>> GetAmplSpectr();
+
+	double lx;
+	double ly;
+	double wid;
 };
 
 void InterpolationMatr(std::vector<std::vector<double>>& result, std::vector<std::vector<double>> _image, double w, double h);
