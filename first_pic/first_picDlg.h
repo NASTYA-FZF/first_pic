@@ -79,6 +79,7 @@ public:
 	afx_msg void OnBnClickedRnull();
 	CButton r_inter;
 	CButton r_null;
+	double err_sig_shum;
 };
 
 double my_round(double value, int num);

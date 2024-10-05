@@ -221,6 +221,10 @@ std::vector<std::vector<double>> Drawer::GetMatr()
 void Drawer::SetMatrLog()
 {
 	int h = matr_log.size();
+
+	if (h <= 0)
+		return;
+
 	int w = matr_log[0].size();
 	double max = 0;
 

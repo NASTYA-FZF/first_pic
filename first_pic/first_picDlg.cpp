@@ -24,6 +24,7 @@ CfirstpicDlg::CfirstpicDlg(CWnd* pParent /*=nullptr*/)
 	, alpha(0)
 	, gamma(100)
 	, error(0)
+	, err_sig_shum(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -55,6 +56,7 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TEXT_W, text_w);
 	DDX_Control(pDX, IDC_RINTER, r_inter);
 	DDX_Control(pDX, IDC_RNULL, r_null);
+	DDX_Text(pDX, IDC_EDIT1, err_sig_shum);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -265,6 +267,7 @@ void CfirstpicDlg::OnBnClickedOk()
 	pic_res.SetMatr(image_all.GetImageRes());
 	Invalidate(FALSE);
 	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
+	err_sig_shum = my_round(image_all.find_error(my_picture.matr, pic_shum.matr), 2);
 	UpdateData(FALSE);
 }
 

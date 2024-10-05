@@ -43,13 +43,14 @@ my_image::my_image(vector<gauss> _gauss, int _w, int _h, double a, double g, boo
 		}
 	}
 
-	GetWHnew();
+	newW = w;
+	newH = h;
+
 	if (interpolation)
 	{
+		GetWHnew();
 		InterpolationMatr(image0, image0, newW, newH);
 	}
-	else
-		AddNull(newW, newH);
 }
 
 my_image::my_image(vector<vector<double>> matr, double a, double g, bool val)
@@ -62,13 +63,14 @@ my_image::my_image(vector<vector<double>> matr, double a, double g, bool val)
 	alpha = a / 100;
 	gamma = g / 100;
 
-	GetWHnew();
+	newW = w;
+	newH = h;
+
 	if (interpolation)
 	{
+		GetWHnew();
 		InterpolationMatr(image0, image0, newW, newH);
 	}
-	else
-		AddNull(newW, newH);
 }
 
 void my_image::generate_shum(std::vector<std::vector<double>>& shum)
@@ -107,10 +109,6 @@ void my_image::generate_pic_with_shum()
 		for (int j = 0; j < newW; j++)
 		{
 			image_shum[i][j] = image0[i][j] + bet * sh[i][j]; //накладываем шум
-			if (!interpolation && (i >= h || j >= w))
-			{
-				image_shum[i][j] = image0[i][j];
-			}
 		}
 	}
 }
@@ -267,6 +265,13 @@ void my_image::clear1()
 void my_image::Process()
 {
 	generate_pic_with_shum();
+
+	if (!interpolation)
+	{
+		GetWHnew();
+		AddNull(newW, newH);
+	}
+
 	ProcessClearImage();
 }
 
@@ -327,10 +332,10 @@ void my_image::ProcessClearImage()
 
 void my_image::AddNull(int w_new, int h_new)
 {
-	image0.resize(h_new);
+	image_shum.resize(h_new);
 	for (int i = 0; i < h_new; i++)
 	{
-		image0[i].resize(w_new, 0);
+		image_shum[i].resize(w_new, 0);
 	}
 }
 
@@ -375,16 +380,18 @@ void my_image::SetInterOrNull(bool value)
 
 vector<vector<double>> my_image::GetImageShum()
 {
+	auto res = image_shum;
 	if (!interpolation)
-		DeleteNull(image_shum);
-	return image_shum;
+		DeleteNull(res);
+	return res;
 }
 
 vector<vector<double>> my_image::GetImageRes()
 {
+	auto res = image_res;
 	if (!interpolation)
-		DeleteNull(image_res);
-	return image_res;
+		DeleteNull(res);
+	return res;
 }
 
 vector<vector<double>> my_image::GetAmplSpectr()
@@ -394,7 +401,8 @@ vector<vector<double>> my_image::GetAmplSpectr()
 
 vector<vector<double>> my_image::GetImageStart()
 {
+	auto res = image0;
 	if (!interpolation)
-		DeleteNull(image0);
-	return image0;
+		DeleteNull(res);
+	return res;
 }
