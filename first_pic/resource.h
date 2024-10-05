@@ -11,6 +11,7 @@
 #define IDC_EDIT4                       1003
 #define IDC_EDIT5                       1004
 #define IDC_EDIT6                       1005
+#define IDC_EDIT7                       1006
 #define IDC_LIST2                       1007
 #define IDC_ADD_KUP                     1008
 #define IDC_CHANGE_KUP                  1009
@@ -30,7 +31,6 @@
 #define IDC_TEXT_H                      1023
 #define IDC_TEXT_W                      1024
 #define IDC_RINTER                      1025
-#define IDC_RADIO2                      1026
 #define IDC_RNULL                       1026
 
 // Next default values for new objects

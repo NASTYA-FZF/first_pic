@@ -229,6 +229,26 @@ double my_image::find_error(std::vector<std::vector<double>> oneImage, std::vect
 	return res;
 }
 
+double my_image::find_PSNR(std::vector<std::vector<double>> oneImage, std::vector<std::vector<double>> twoImage)
+{
+	if (oneImage.size() != twoImage.size() || oneImage[0].size() != twoImage[0].size())
+		return -1;
+
+	double znamen = 0;
+	int N = oneImage.size() * oneImage[0].size();
+	double chislit = P2(255);
+
+	for (int i = 0; i < oneImage.size(); i++)
+	{
+		for (int j = 0; j < oneImage[0].size(); j++)
+		{
+			znamen += P2(oneImage[i][j] - twoImage[i][j]) / N;
+		}
+	}
+	double res = 10 * log10(chislit / znamen);
+	return res;
+}
+
 void my_image::get_ampl_spec(std::vector<std::vector<base>> matr)
 {
 	for (int i = 0; i < newH; i++)

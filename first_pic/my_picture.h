@@ -59,6 +59,7 @@ public:
 	void filter(std::vector<std::vector<base>>& fourea);
 	//поиск ошибки (сделать через 2 параметра)
 	double find_error(std::vector<std::vector<double>> oneImage, std::vector<std::vector<double>> twoImage);
+	double find_PSNR(std::vector<std::vector<double>> oneImage, std::vector<std::vector<double>> twoImage);
 	//получение ампл. спектра (без копирования)
 	void get_ampl_spec(std::vector<std::vector<base>> matr);
 	//установка параметра зашумления
