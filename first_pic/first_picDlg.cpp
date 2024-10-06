@@ -21,10 +21,12 @@ CfirstpicDlg::CfirstpicDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FIRST_PIC_DIALOG, pParent)
 	, width_pic(127)
 	, heaght_pic(127)
-	, alpha(0)
-	, gamma(100)
+	, alpha(10)
+	, gamma(90)
 	, error(0)
 	, err_sig_shum(0)
+	, per_error_shum(0)
+	, per_error(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -57,6 +59,8 @@ void CfirstpicDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RINTER, r_inter);
 	DDX_Control(pDX, IDC_RNULL, r_null);
 	DDX_Text(pDX, IDC_EDIT1, err_sig_shum);
+	DDX_Text(pDX, IDC_EDIT8, per_error_shum);
+	DDX_Text(pDX, IDC_EDIT7, per_error);
 }
 
 BEGIN_MESSAGE_MAP(CfirstpicDlg, CDialogEx)
@@ -251,16 +255,6 @@ void CfirstpicDlg::OnBnClickedOk()
 
 	image_all.Process();
 
-	/*w = my_picture.w_start;
-	h = my_picture.h_start;
-
-	pic_shum.w_start = w;
-	pic_shum.h_start = h;
-	pic_spectr.w_start = w;
-	pic_spectr.h_start = h;
-	pic_res.w_start = w;
-	pic_res.h_start = h;*/
-
 	my_picture.SetMatr(image_all.GetImageStart(), image_all.lx, image_all.ly, image_all.wid, false);
 	pic_shum.SetMatr(image_all.GetImageShum(), image_all.lx, image_all.ly, image_all.wid, false);
 	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
@@ -268,6 +262,8 @@ void CfirstpicDlg::OnBnClickedOk()
 	Invalidate(FALSE);
 	error = my_round(image_all.find_PSNR(my_picture.matr, pic_res.matr), 2);
 	err_sig_shum = my_round(image_all.find_PSNR(my_picture.matr, pic_shum.matr), 2);
+	per_error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
+	per_error_shum = my_round(image_all.find_error(my_picture.matr, pic_shum.matr), 2);
 	UpdateData(FALSE);
 }
 
@@ -296,6 +292,8 @@ void CfirstpicDlg::OnBnClickedBloadimage()
 	auto path = change_image.GetPathName();
 	my_picture.LoadImage_(path);
 	Invalidate(FALSE);
+	image_all = my_image(my_picture.GetMatr(), alpha, gamma, inter_or_null);
+	my_picture.SetMatr(image_all.GetImageStart(), 0, 0, 0, false);
 }
 
 
@@ -310,6 +308,10 @@ void CfirstpicDlg::OnBnClickedBshum()
 	pic_spectr.SetMatr(image_all.GetAmplSpectr(), image_all.lx, image_all.ly, image_all.wid, true);
 	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
+
+	err_sig_shum = my_round(image_all.find_PSNR(my_picture.matr, pic_shum.matr), 2);
+	per_error_shum = my_round(image_all.find_error(my_picture.matr, pic_shum.matr), 2);
+	UpdateData(FALSE);
 }
 
 
@@ -323,7 +325,8 @@ void CfirstpicDlg::OnBnClickedBclear()
 	pic_res.SetMatr(image_all.GetImageRes(), image_all.lx, image_all.ly, image_all.wid, false);
 	Invalidate(FALSE);
 
-	error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
+	error = my_round(image_all.find_PSNR(my_picture.matr, pic_res.matr), 2);
+	per_error = my_round(image_all.find_error(my_picture.matr, pic_res.matr), 2);
 	UpdateData(FALSE);
 }
 

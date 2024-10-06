@@ -80,6 +80,8 @@ public:
 	CButton r_inter;
 	CButton r_null;
 	double err_sig_shum;
+	double per_error_shum;
+	double per_error;
 };
 
 double my_round(double value, int num);

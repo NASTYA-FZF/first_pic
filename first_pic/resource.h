@@ -16,6 +16,7 @@
 #define IDC_ADD_KUP                     1008
 #define IDC_CHANGE_KUP                  1009
 #define IDC_DELETE_KUP                  1010
+#define IDC_EDIT8                       1011
 #define IDC_DELETE_ALL                  1012
 #define IDC_BUT_DEFAULT                 1013
 #define IDC_PIC                         1014
