@@ -435,7 +435,7 @@ void my_image::Norma(std::vector<std::vector<double>>& matr)
 	{
 		for (int j = 0; j < matr[0].size(); j++)
 		{
-			matr[i][j] = (matr[i][j] + min) * 255. / max;
+			matr[i][j] = (matr[i][j] - min) * 255. / (max - min);
 		}
 	}
 }
