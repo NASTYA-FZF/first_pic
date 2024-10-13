@@ -234,6 +234,9 @@ double my_image::find_PSNR(std::vector<std::vector<double>> oneImage, std::vecto
 	if (oneImage.size() != twoImage.size() || oneImage[0].size() != twoImage[0].size())
 		return -1;
 
+	Norma(oneImage);
+	Norma(twoImage);
+
 	double znamen = 0;
 	double chislit = 0;
 	int N = oneImage.size() * oneImage[0].size();
@@ -253,10 +256,10 @@ double my_image::find_PSNR(std::vector<std::vector<double>> oneImage, std::vecto
 	{
 		for (int j = 0; j < oneImage[0].size(); j++)
 		{
-			znamen += P2(oneImage[i][j] - twoImage[i][j]) / N;
+			znamen += P2(oneImage[i][j] - twoImage[i][j]);
 		}
 	}
-	double res = 10 * log10(chislit / znamen);
+	double res = 10 * log10(chislit * N / znamen);
 	return res;
 }
 
@@ -410,6 +413,31 @@ void my_image::GetWHnew()
 void my_image::SetInterOrNull(bool value)
 {
 	interpolation = value;
+}
+
+void my_image::Norma(std::vector<std::vector<double>>& matr)
+{
+	double max = 0;
+	double min = 0;
+
+	for (int i = 0; i < matr.size(); i++)
+	{
+		for (int j = 0; j < matr[0].size(); j++)
+		{
+			if (max < matr[i][j])
+				max = matr[i][j];
+			if (min > matr[i][j])
+				min = matr[i][j];
+		}
+	}
+
+	for (int i = 0; i < matr.size(); i++)
+	{
+		for (int j = 0; j < matr[0].size(); j++)
+		{
+			matr[i][j] = (matr[i][j] + min) * 255. / max;
+		}
+	}
 }
 
 vector<vector<double>> my_image::GetImageShum()

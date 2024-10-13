@@ -82,6 +82,7 @@ public:
 	void DeleteNull(std::vector<std::vector<double>>& matr);
 	void GetWHnew();
 	void SetInterOrNull(bool value);
+	void Norma(std::vector<std::vector<double>>& matr);
 
 	//получение изображений на выходе
 	vector<vector<double>> GetImageStart();
